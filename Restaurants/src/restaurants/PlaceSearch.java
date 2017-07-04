@@ -12,5 +12,6 @@ public class PlaceSearch {
         String name;
         double rating;
         String[] types;
+        Double price_level;
     }
 }
