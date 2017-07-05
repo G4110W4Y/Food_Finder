@@ -2,14 +2,14 @@
 //
 
 package restaurants;
-import java.awt.Event;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import com.google.gson.*;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.concurrent.TimeUnit;
+
 
 
 
@@ -20,14 +20,29 @@ public class Restaurants {
         
         Scanner input = new Scanner(System.in);
         Gson parser = new Gson();
-        InputStreamReader reader = null;
+        BufferedReader reader = null;
+        URL url;
         try {
-            URL url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=30.2241,-92.0198&radius=10000&key=AIzaSyCmylGp6EXQMzEmvP8euBhv3WnrVZrsDOc");
-            reader = new InputStreamReader(url.openStream());
+            url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=30.2241,-92.0198&radius=10000&key=AIzaSyCmylGp6EXQMzEmvP8euBhv3WnrVZrsDOc");
+            reader = new BufferedReader(new InputStreamReader(url.openStream()));
         } catch (Exception e) {
         }
         PlaceSearch data = parser.fromJson(reader, PlaceSearch.class);
-        System.out.println(data.results[0].name+"");
+        //This prints outs all of the restaurants from the api responses (and iterates over all of the pages if there's more than one)
+        while(data.next_page_token != null){
+            for (PlaceSearch.PlaceData result : data.results) {
+                System.out.println(result.name);
+            }
+            try {
+                //if you don't wait 2 seoncds before making another request google cucks you and tells you INVALID_REQUEST
+                TimeUnit.SECONDS.sleep(2);
+                url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken="+data.next_page_token+"&key=AIzaSyCmylGp6EXQMzEmvP8euBhv3WnrVZrsDOc");
+                reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            } catch (Exception e) {
+            }
+            data = parser.fromJson(reader, PlaceSearch.class);
+        }
+        
     }
 
 }
