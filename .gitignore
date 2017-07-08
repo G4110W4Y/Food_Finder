@@ -1,4 +1,7 @@
 # Private stuff
+Restaurants/build/
+Restaurants/dist/
+Restaurants/keys
 
 # Compiled class file
 *.class
