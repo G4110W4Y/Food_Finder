@@ -1,5 +1,5 @@
 # Private stuff
-Restaurants/build/
+Restaurants/build/*
 Restaurants/dist/
 Restaurants/keys
 

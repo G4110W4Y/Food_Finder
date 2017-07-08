@@ -1,7 +1,7 @@
 // Chad Galloway
 //
-
 package restaurants;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,39 +10,38 @@ import com.google.gson.*;
 import java.io.*;
 import java.util.concurrent.TimeUnit;
 
-
-
-
 public class Restaurants {
 
-   
     public static void main(String[] args) throws MalformedURLException, IOException {
-        
+
         Scanner input = new Scanner(System.in);
         Gson parser = new Gson();
-        BufferedReader reader = null;
+        // replace this with the filename of the file containing a key to use
+        Keys key = new Keys("keys");
+        ArrayList<PlaceSearch.PlaceData> places = new ArrayList();
+        BufferedReader reader;
         URL url;
-        try {
-            url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=30.2241,-92.0198&radius=10000&key=AIzaSyCmylGp6EXQMzEmvP8euBhv3WnrVZrsDOc");
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        } catch (Exception e) {
-        }
+        //use get() to instantly get the key, and use setTime() after the url is read
+        url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=30.2241,-92.0198&radius=10000&key=" + key.get());
+        reader = new BufferedReader(new InputStreamReader(url.openStream()));
         PlaceSearch data = parser.fromJson(reader, PlaceSearch.class);
-        //This prints outs all of the restaurants from the api responses (and iterates over all of the pages if there's more than one)
-        while(data.next_page_token != null){
-            for (PlaceSearch.PlaceData result : data.results) {
-                System.out.println(result.name);
-            }
-            try {
-                //if you don't wait 2 seoncds before making another request google cucks you and tells you INVALID_REQUEST
-                TimeUnit.SECONDS.sleep(2);
-                url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken="+data.next_page_token+"&key=AIzaSyCmylGp6EXQMzEmvP8euBhv3WnrVZrsDOc");
-                reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            } catch (Exception e) {
-            }
+        key.setTime();
+        places.addAll(Arrays.asList(data.results));
+        System.out.println(data.status);
+        
+        while (data.next_page_token != null) {
+            // Since we use getDelay() here, it will wait until 2 seconds after the last call to setTime() before returning
+            url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=" + data.next_page_token + "&key=" + key.getDelay());
+            reader = new BufferedReader(new InputStreamReader(url.openStream()));
             data = parser.fromJson(reader, PlaceSearch.class);
+            key.setTime();
+            places.addAll(Arrays.asList(data.results));
+            //Print status to make sure google doesn't say invalid request
+            System.out.println(data.status);
         }
         
+        System.out.println("Number of places: " + places.size());
+
     }
 
 }

@@ -4,7 +4,7 @@ package restaurants;
 public class PlaceSearch {
     String next_page_token;
     PlaceData[] results;
-    
+    String status;
     public class PlaceData {
         String formatted_address;
         String icon;

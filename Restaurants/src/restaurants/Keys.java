@@ -6,29 +6,26 @@ import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Class used to abstract the use of api key(s) and add the appropriate delay.
+ * Class used to abstract the use of an api key and add the appropriate delay.
  * 
  * @author Austin Pohlmann
  * @author Chad Galloway
  */
 public class Keys {
 
-    private int num = 0;
     private long time = 0;
-    ArrayList<String> keys = new ArrayList();
+    private String key = null;
 
     /**
-     * Create an object for returning api keys.
+     * Create an object for returning an api key.
      * 
-     * @param filename the path to a file containing any api keys to be used
+     * @param filename the path to a file containing an api key to be used
      */
     public Keys(String filename) {
         File file = new File(filename);
         if (file.exists()) {
             try (Scanner read = new Scanner(file)) {
-                while (read.hasNext()) {
-                    keys.add(read.nextLine());
-                }
+                key = read.nextLine();
             } catch (Exception e) {
                 System.out.println("Exception " + e + "caught!!!");
             }
@@ -36,22 +33,37 @@ public class Keys {
     }
 
     /**
-     * Get the next api key to be used and sleep until it is safe to make another api request.
-     * If calls for an api key are made within a certain time frame, it will likely fail.
-     * The time it sleeps for depends on how many keys are being used
+     * Get the api key to be used for and sleep until it is safe to make another api request.
+     * If calls for an api key are made within a certain time frame(for certain operations), it will likely fail.
+     * The time it sleeps for depends on how much time has elapsed since last called
      * @return a string containing an api key
      */
-    public String get() {
+    public String getDelay() {
         long current = System.currentTimeMillis();
-        int delay;
-        if (current - time < (delay = 2000 / keys.size())) {
+        long delay;
+        if ((delay = current - time) < 2000) {
             try {
-                TimeUnit.MILLISECONDS.sleep(delay);
+                TimeUnit.MILLISECONDS.sleep(2000 - delay);
             } catch (Exception e) {
                 System.out.println("Sleeping interrupted, API request might fail!!!");
             }
         }
         time = System.currentTimeMillis();
-        return keys.get((num = (num+1)%keys.size()));
+        return key;
+    }
+    
+    /**
+     * Get the api key.
+     * @return a string containing an api key
+     */
+    public String get(){
+        return key;
+    }
+    /**
+     * Set the current system time.
+     * This should be called after the request finishes
+     */
+    public void setTime(){
+        time = System.currentTimeMillis();
     }
 }
