@@ -22,7 +22,7 @@ public class Restaurants {
         BufferedReader reader;
         URL url;
         //use get() to instantly get the key, and use setTime() after the url is read
-        url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=30.2241,-92.0198&radius=10000&key=" + key.get());
+        url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=restaurants&location=30.2241,-92.0198&radius=5000&key=" + key.get());
         reader = new BufferedReader(new InputStreamReader(url.openStream()));
         PlaceSearch data = parser.fromJson(reader, PlaceSearch.class);
         key.setTime();
@@ -41,6 +41,10 @@ public class Restaurants {
         }
         
         System.out.println("Number of places: " + places.size());
+        Collections.sort(places, new DistanceComparator(30.212159,-92.0470944));
+        for(PlaceSearch.PlaceData place: places){
+            System.out.println(place.name +"\n"+place.formatted_address+"\n");
+        }
 
     }
 
